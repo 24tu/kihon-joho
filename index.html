@@ -63,7 +63,10 @@ td.h{background:#f6c3c6}td.m{background:#fde3a7}td.l{background:#cfe9d8}
 .box.ok{border-color:var(--ok);background:var(--okbg)}.box.ng{border-color:var(--ng);background:var(--ngbg)}
 pre{background:#1b1f24;color:#e8edf3;padding:10px;border-radius:8px;font-size:12px;overflow-x:auto;line-height:1.6}
 code{background:#eef1f5;padding:0 4px;border-radius:4px;font-size:.92em}
-svg text{fill:var(--ink);font-family:inherit}
+svg text:not([fill]){fill:var(--ink)}
+svg text{font-family:inherit}
+pre.qcode{background:#f4f6f9;color:var(--ink);font-family:inherit;font-size:14px;line-height:1.7}
+.cond{font-size:14px;line-height:1.8;margin-top:8px;background:#f4f6f9;padding:8px 10px;border-radius:8px}
 .qfig{margin-top:10px;max-width:420px}
 .stat{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;text-align:center}
 .stat div{background:#f4f6f9;border-radius:10px;padding:10px 4px}
@@ -143,16 +146,20 @@ function home() {
   const tries = ids.reduce((a, id) => a + S.q[id].n, 0);
   const oks = ids.reduce((a, id) => a + S.q[id].ok, 0);
   const due = dueList().length;
-  const tags = {};
+  // 大分類（テクノロジなど）と、その中の分野ごとに集計する
+  const areas = {}, tags = {};
   for (const q of QUESTIONS) {
     const t = q.tag.split("・")[0], r = S.q[q.id];
+    areas[q.area] = areas[q.area] || { n: 0, ok: 0 };
     tags[t] = tags[t] || { n: 0, ok: 0 };
-    if (r) { tags[t].n += r.n; tags[t].ok += r.ok; }
+    if (r) for (const v of [areas[q.area], tags[t]]) { v.n += r.n; v.ok += r.ok; }
   }
-  const meters = Object.entries(tags).map(([t, v]) => {
+  const meter = ([t, v]) => {
     const p = v.n ? Math.round(v.ok / v.n * 100) : 0;
     return `<div class="meter"><div class="lab"><span>${t}</span><span>${v.n ? p + "%" : "まだ"}</span></div><div class="track"><i style="width:${p}%"></i></div></div>`;
-  }).join("");
+  };
+  const meters = Object.entries(areas).map(meter).join("") +
+    `<details><summary><h2 class="mute">分野をくわしく見る</h2></summary>${Object.entries(tags).map(meter).join("")}</details>`;
   $("app").innerHTML = `
   <div class="card">
     <div class="stat">
