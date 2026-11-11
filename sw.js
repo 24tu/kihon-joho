@@ -1,6 +1,6 @@
 // アプリの画面を端末に保存して、電波がなくても開けるようにする。
 // 画面や問題を直したら VERSION を上げると、次に開いたときに新しいものに入れ替わる。
-const VERSION = "v2";
+const VERSION = "v3";
 const FILES = ["./", "index.html", "questions.js", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png", "icons/apple-touch-icon.png"];
 
 self.addEventListener("install", e => {
